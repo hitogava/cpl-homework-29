@@ -29,14 +29,14 @@ IndentCaseLabels: true
 IndentExternBlock: Indent
 IndentGotoLabels: false
 IndentPPDirectives: BeforeHash
-IndentWidth: 2
+IndentWidth: 4
 #InsertNewlineAtEOF: true
 KeepEmptyLinesAtTheStartOfBlocks: false
 Language: Cpp
 MaxEmptyLinesToKeep: 2
 NamespaceIndentation: All
 PPIndentWidth: 2
-PointerAlignment: Left
+PointerAlignment: Right
 ReferenceAlignment: Left
 ReflowComments: false
 #RemoveParentheses: ReturnStatement
