@@ -13,7 +13,7 @@ SANITIZER_FLAGS = -fsanitize=undefined -fsanitize-address-use-after-scope
 FLAGS = $(MAIN_FLAGS) $(WARNINGS_FLAGS) $(SANITIZER_FLAGS)
 
 # Sources and headers
-SOURCES = $(wildcard ./*.c)
+SOURCES = $(wildcard ./*.c) $(wildcard ./*.o)
 HEADERS = $(wildcard ./*.h)
 FORMATTED_FILES = $(SOURCES:.c=.c.formatted) $(HEADERS:.h=.h.formatted)
 
@@ -37,6 +37,9 @@ PASS = $(IN:-input.txt=.passed)
 
 all: clean-before test clean-after
 
+vector.o: vector.c
+	$(GCC) $(FLAGS) -c vector.c -o vector.o -I/.include/
+
 $(FORMATTED_FILES): %.formatted: %
 	@clang-format-14 --style=file $* > $*.formatted
 	diff $* $*.formatted
@@ -57,6 +60,8 @@ $(EXE_64): $(FORMATTED_FILES)
 	@rm -f $(FORMATTED_FILES)
 	$(GCC) $(FLAGS) $(SOURCES) -o $@ -m64
 
+EXE = $(EXE_32_STD_ALLOC) $(EXE_64_STD_ALLOC) $(EXE_32) $(EXE_64)
+
 $(PASS): %.passed: %-input.txt %-expected.txt  $(EXE_32_STD_ALLOC) $(EXE_64_STD_ALLOC) $(EXE_32) $(EXE_64)
 	@echo "Running test $*..."
 	@rm -f $@
@@ -70,16 +75,20 @@ $(PASS): %.passed: %-input.txt %-expected.txt  $(EXE_32_STD_ALLOC) $(EXE_64_STD_
 	diff $*-expected.txt $*-actual-64.txt
 	@touch $@
 
+# Targets
+
 test: $(PASS)
 	@echo "All tests passed"
 
 main:
-	$(GCC) $(FLAGS) main.c -o $@
+	$(GCC) $(FLAGS) $(SOURCES) -o $@
+
+clean: clean-before clean-after
 
 clean-before:
 	rm -f $(FORMATTED_FILES) $(EXE)
 
 clean-after:
-	rm -f $(ACT_32_STD_ALLOC) $(ACT_64_STD_ALLOC) $(ACT_32) $(ACT_64) $(PASS)
+	rm -f $(ACT_32_STD_ALLOC) $(ACT_64_STD_ALLOC) $(ACT_32) $(ACT_64) $(PASS) $(EXE)
 
 .PHONY: all test clean main
